@@ -27,8 +27,7 @@ const generateEmptyGrid = () => {
 const generateRandomGrid = () => {
     const rows = []
     for (let i = 0; i < numRows; i++) {
-        let random = Math.random() > .7;
-        rows.push(Array.from(Array(numCols), () => random ? 1 : 0));
+        rows.push(Array.from(Array(numCols), () => Math.random() > 0.7 ? 1 : 0));
     }
     return rows;
 }
@@ -38,9 +37,9 @@ function withinBounds(newI, newK) {
     return newI >= 0 && newI < numRows && newK >= 0 && newK < numCols;
 }
 
-function checkOutOfBounds(newI, newK, neighbors, grid) {
+function checkOutOfBounds(newI, newK, neighbors, g) {
     if (withinBounds(newI, newK)) {
-        neighbors += grid[newI][newK]
+        neighbors += g[newI][newK]
     }
     return neighbors;
 }
