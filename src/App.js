@@ -39,10 +39,9 @@ function App() {
 
     function showCell(i, k) {
         return <div key={`${i}-${k}`}
+                    className={"cell"}
                     style={{
-                        width: 20, height: 20,
                         backgroundColor: grid[i][k] ? '#acc864' : undefined,
-                        border: "solid 1px black"
                     }}
                     onClick={handleCellClick(i, k)}>
         </div>;
@@ -104,23 +103,30 @@ function App() {
         setTimeout(runSimulation, 1000)
     }, [])
 
+    function showGrid() {
+        return <div className={"grid"} style={{
+            gridTemplateColumns: `repeat(${numCols}, 20px)`
+        }}>
+            {mapToGrid()}
+        </div>;
+    }
+
     return (
         <>
             <button onClick={() => {
                 setRunning(!running);
-                if (!running) {
-                    runningRef.current = true;
-                    runSimulation();
+                shouldRunSimulation();
+
+                function shouldRunSimulation() {
+                    if (!running) {
+                        runningRef.current = true;
+                        runSimulation();
+                    }
                 }
             }}>
                 {running ? 'stop' : 'start'}
             </button>
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: `repeat(${numCols}, 20px)`
-            }}>
-                {mapToGrid()}
-            </div>
+            {showGrid()}
         </>
     );
 }
