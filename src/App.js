@@ -16,17 +16,40 @@ const operations = [
     [-1, 0]
 ]
 
+const generateEmptyGrid = () => {
+    const rows = []
+    for (let i = 0; i < numRows; i++) {
+        rows.push(Array.from(Array(numCols), () => 0));
+    }
+    return rows;
+}
+
+const generateRandomGrid = () => {
+    const rows = []
+    for (let i = 0; i < numRows; i++) {
+        let random = Math.random() > .7;
+        rows.push(Array.from(Array(numCols), () => random ? 1 : 0));
+    }
+    return rows;
+}
+
+
+function withinBounds(newI, newK) {
+    return newI >= 0 && newI < numRows && newK >= 0 && newK < numCols;
+}
+
+function checkOutOfBounds(newI, newK, neighbors, grid) {
+    if (withinBounds(newI, newK)) {
+        neighbors += grid[newI][newK]
+    }
+    return neighbors;
+}
+
 function App() {
 
     const [grid, setGrid] = useState(() => {
-        const rows = []
-        for (let i = 0; i < numRows; i++) {
-            rows.push(Array.from(Array(numCols), () => 0));
-        }
-        return rows;
+        return generateEmptyGrid();
     });
-
-    console.log(grid);
 
     function handleCellClick(i, k) {
         return () => {
@@ -60,8 +83,8 @@ function App() {
         if (!runningRef.current) {
             return;
         }
-        setGrid((g) => {
-            return produce(g, gridCopy => {
+        setGrid((grid) => {
+            return produce(grid, gridCopy => {
                 function fewerThan2MoreThan3(neighbors, i, k) {
                     if (neighbors < 2 || neighbors > 3) {
                         gridCopy[i][k] = 0;
@@ -69,7 +92,7 @@ function App() {
                 }
 
                 function deadWith3Neighbors(i, k, neighbors) {
-                    if (g[i][k] === 0 && neighbors === 3) {
+                    if (grid[i][k] === 0 && neighbors === 3) {
                         gridCopy[i][k] = 1;
                     }
                 }
@@ -80,18 +103,7 @@ function App() {
                         operations.forEach(([x, y]) => {
                             const newI = i + x;
                             const newK = k + y;
-
-                            function withinBounds() {
-                                return newI >= 0 && newI < numRows && newK >= 0 && newK < numCols;
-                            }
-
-                            function checkOutOfBounds() {
-                                if (withinBounds()) {
-                                    neighbors += g[newI][newK]
-                                }
-                            }
-
-                            checkOutOfBounds();
+                            neighbors = checkOutOfBounds(newI, newK, neighbors, grid);
                         })
                         fewerThan2MoreThan3(neighbors, i, k);
                         deadWith3Neighbors(i, k, neighbors);
@@ -100,7 +112,7 @@ function App() {
             })
         })
 
-        setTimeout(runSimulation, 1000)
+        setTimeout(runSimulation, 100)
     }, [])
 
     function showGrid() {
@@ -125,6 +137,12 @@ function App() {
                 }
             }}>
                 {running ? 'stop' : 'start'}
+            </button>
+            <button onClick={() => setGrid(generateRandomGrid())}>
+                random
+            </button>
+            <button onClick={() => setGrid(generateEmptyGrid())}>
+                clear
             </button>
             {showGrid()}
         </>
